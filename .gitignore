@@ -1,7 +1,23 @@
-.DS_Store
+# Build
 .build/
-*.xcodeproj
-xcuserdata/
 DerivedData/
+
+# Xcode
+*.xcodeproj
+*.xcworkspace
+xcuserdata/
+
+# Swift Package Manager
 .swiftpm/
 Package.resolved
+
+# macOS
+.DS_Store
+*.app
+
+# IDE
+.vscode/
+.idea/
+
+# Debug
+portwatch.log
