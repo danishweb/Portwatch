@@ -1,0 +1,8 @@
+{
+  "identifier": "default",
+  "description": "Default capabilities for Portwatch",
+  "windows": ["main"],
+  "permissions": [
+    "core:default"
+  ]
+}
