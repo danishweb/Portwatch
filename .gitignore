@@ -1,19 +1,17 @@
 # Build
+dist/
+src-tauri/target/
+src-tauri/gen/
 .build/
-DerivedData/
 
-# Xcode
-*.xcodeproj
-*.xcworkspace
-xcuserdata/
-
-# Swift Package Manager
-.swiftpm/
-Package.resolved
+# Dependencies
+node_modules/
 
 # macOS
 .DS_Store
-*.app
+
+# Rust
+*.rs.bk
 
 # IDE
 .vscode/
@@ -21,3 +19,6 @@ Package.resolved
 
 # Debug
 portwatch.log
+
+# Environment
+.env

@@ -8,50 +8,59 @@ Thanks for your interest in contributing!
 2. Clone your fork
 3. Create a branch: `git checkout -b my-feature`
 4. Make your changes
-5. Build and test: `make run`
+5. Build and test: `npm run tauri dev`
 6. Commit and push
 7. Open a Pull Request
 
 ## Development
 
+### Prerequisites
+
+- [Node.js 18+](https://nodejs.org/) and npm
+- [Rust](https://rustup.rs/) (latest stable)
+- Platform-specific dependencies:
+  - **macOS**: Xcode Command Line Tools (`xcode-select --install`)
+  - **Linux**: `sudo apt install libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev`
+  - **Windows**: [WebView2](https://developer.microsoft.com/en-us/microsoft-edge/webview2/) (ships with Windows 11)
+
+### Commands
+
 ```bash
-# Debug build (faster compilation)
-make build
+# Install dependencies
+npm install
 
-# Run the app
-make run
+# Start dev server (hot-reload frontend + Rust rebuild)
+npm run tauri dev
 
-# Clean build artifacts
-make clean
+# Production build
+npm run tauri build
+
+# Frontend only (no Tauri)
+npm run dev
 ```
-
-### Requirements
-
-- macOS 13.0+
-- Swift 5.9+
-- Xcode Command Line Tools (`xcode-select --install`)
 
 ## Guidelines
 
 - Keep it simple. Portwatch is intentionally minimal.
-- No external dependencies unless absolutely necessary.
-- Follow existing code style (Swift standard conventions).
+- Follow existing code style (Rust conventions for backend, React/TS for frontend).
 - One feature per PR.
+- Test on your platform before submitting.
 
-## Ideas for Contribution
+## Architecture
 
-- Homebrew formula / cask
-- App icon
-- Launch at login option
-- Keyboard shortcuts
-- Copy port/PID to clipboard
-- Group ports by process
-- Notifications when new ports appear
-- Custom refresh interval
+- **Rust backend** (`src-tauri/src/`): Port scanning and process management. OS-specific scanners implement the `PortScanner` trait.
+- **React frontend** (`src/`): UI with TypeScript. Communicates with Rust via Tauri's `invoke()`.
+- **Tauri bridge**: Commands defined in `lib.rs` are callable from the frontend.
+
+## Adding a New Platform Scanner
+
+1. Create `src-tauri/src/scanner/<platform>.rs`
+2. Implement the `PortScanner` trait
+3. Add the `cfg` gate in `scanner/mod.rs`
 
 ## Reporting Issues
 
 Open an issue with:
-- macOS version
+- OS and version
 - Steps to reproduce
 - Expected vs actual behavior

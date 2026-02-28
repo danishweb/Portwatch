@@ -1,6 +1,6 @@
 # Portwatch
 
-A native macOS app that shows all listening TCP ports, maps them to processes, and lets you kill them with one click.
+A cross-platform desktop app that shows all listening TCP ports, maps them to processes, and lets you kill them with one click.
 
 No more `lsof -i :3000 | grep LISTEN` followed by `kill -9 <PID>`. Just open Portwatch.
 
@@ -12,13 +12,14 @@ No more `lsof -i :3000 | grep LISTEN` followed by `kill -9 <PID>`. Just open Por
 - **Search & filter** — Filter by port number, process name, or PID
 - **Color-coded categories** — Databases (purple), web servers (blue), system services (orange), dev tools (green)
 - **Confirmation dialogs** — Force kill requires confirmation to prevent accidents
-- **Zero dependencies** — Pure Swift + SwiftUI, nothing to install
-- **Lightweight** — ~5MB, minimal CPU/memory usage
+- **Cross-platform** — macOS, Linux, and Windows
+- **Lightweight** — ~5MB binary, minimal CPU/memory usage
 
 ## Requirements
 
-- macOS 13.0 (Ventura) or later
-- Swift 5.9+
+- macOS 10.15+, Linux (any modern distro), or Windows 10+
+- [Node.js 18+](https://nodejs.org/) and npm
+- [Rust](https://rustup.rs/) (for building from source)
 
 ## Install
 
@@ -27,15 +28,19 @@ No more `lsof -i :3000 | grep LISTEN` followed by `kill -9 <PID>`. Just open Por
 ```bash
 git clone https://github.com/danishweb/Portwatch.git
 cd Portwatch
-make install
+npm install
+npm run tauri build
 ```
 
-Then open **Portwatch** from `/Applications` or Spotlight.
+The built app will be at:
+- **macOS**: `src-tauri/target/release/bundle/macos/Portwatch.app`
+- **Linux**: `src-tauri/target/release/bundle/deb/` or `appimage/`
+- **Windows**: `src-tauri/target/release/bundle/msi/` or `nsis/`
 
-### Run without installing
+### Development
 
 ```bash
-make run
+npm run tauri dev
 ```
 
 ## Usage
@@ -43,8 +48,8 @@ make run
 1. Open Portwatch
 2. All listening TCP ports appear in the list
 3. Use the search bar to filter by port, process name, or PID
-4. Click the **stop icon** (orange) to gracefully stop a process (SIGTERM)
-5. Click the **bolt icon** (red) to force kill — a confirmation dialog will appear
+4. Click the **stop button** (orange) to gracefully stop a process (SIGTERM)
+5. Click the **force kill button** (red) — a confirmation dialog will appear
 
 ### Port Categories
 
@@ -56,43 +61,63 @@ make run
 | Green | Development | Ports 3000-9999 |
 | Gray | Other | Everything else |
 
-## Build Commands
+## Tech Stack
 
-| Command | Description |
-|---------|-------------|
-| `make build` | Debug build |
-| `make release` | Optimized release build |
-| `make bundle` | Release build + create signed `.app` bundle |
-| `make run` | Build and launch |
-| `make install` | Build and copy to `/Applications` |
-| `make clean` | Remove build artifacts |
+| Layer | Technology |
+|-------|-----------|
+| Framework | [Tauri v2](https://v2.tauri.app/) |
+| Backend | Rust |
+| Frontend | React + TypeScript |
+| Bundler | Vite |
+| Styling | Tailwind CSS |
 
 ## Project Structure
 
 ```
 Portwatch/
-├── Package.swift                       # SPM config (macOS 13+, zero deps)
-├── Makefile                            # Build, bundle, install commands
-├── Resources/
-│   └── Info.plist                      # App bundle config
-└── Sources/Portwatch/
-    ├── App/PortwatchApp.swift          # SwiftUI app entry point
-    ├── Models/PortEntry.swift          # Port data model + category enum
-    ├── Services/PortScanner.swift      # lsof execution + output parsing
-    ├── ViewModels/PortListViewModel.swift  # State, timer, kill logic
-    └── Views/
-        ├── PortListView.swift          # Main window view
-        └── PortRowView.swift           # Individual port row
+├── package.json               # Frontend deps + scripts
+├── vite.config.ts             # Vite config
+├── tsconfig.json
+├── index.html                 # HTML entry
+├── src/                       # React frontend
+│   ├── main.tsx
+│   ├── App.tsx
+│   ├── components/
+│   │   ├── PortList.tsx       # Table with search, headers, status bar
+│   │   └── PortRow.tsx        # Single port row + kill buttons
+│   ├── hooks/
+│   │   └── usePortScanner.ts  # Polling hook (scan every 5s)
+│   ├── types/
+│   │   └── port.ts            # TypeScript interfaces
+│   └── index.css              # Tailwind imports
+└── src-tauri/                 # Rust backend
+    ├── Cargo.toml
+    ├── tauri.conf.json
+    └── src/
+        ├── lib.rs             # Tauri commands (scan_ports, kill_process)
+        ├── main.rs            # Desktop entry point
+        ├── models.rs          # PortEntry, PortCategory
+        └── scanner/
+            ├── mod.rs         # Scanner trait + OS factory
+            ├── macos.rs       # lsof parser
+            ├── linux.rs       # ss / /proc/net/tcp parser
+            └── windows.rs     # netstat parser
 ```
-
-7 Swift files. That's it.
 
 ## How It Works
 
-1. Runs `/usr/sbin/lsof -i -P -n -sTCP:LISTEN` to find all listening TCP ports
-2. Parses the output to extract port, PID, process name, and address
-3. Deduplicates entries (same process on IPv4 + IPv6)
-4. Uses POSIX `kill()` syscall directly for process termination — no shell involved
+### macOS
+Runs `/usr/sbin/lsof -i -P -n -sTCP:LISTEN` to find all listening TCP ports.
+
+### Linux
+Uses `ss -tlnp` (with `/proc/net/tcp` fallback) to enumerate listeners.
+
+### Windows
+Parses `netstat -ano` output and maps PIDs to process names via `tasklist`.
+
+### Process termination
+- **Stop**: Sends SIGTERM (Unix) or `taskkill` (Windows)
+- **Force kill**: Sends SIGKILL (Unix) or `taskkill /F` (Windows)
 
 ## Contributing
 
