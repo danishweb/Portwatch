@@ -5,15 +5,20 @@ struct PortListView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Header
-            HStack {
-                Text("Portwatch")
-                    .font(.headline)
-                Spacer()
-                if viewModel.isScanning {
-                    ProgressView()
-                        .scaleEffect(0.5)
+            // Toolbar area
+            HStack(spacing: 12) {
+                // Search
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundStyle(.secondary)
+                    TextField("Filter by port, process, or PID...", text: $viewModel.searchText)
+                        .textFieldStyle(.plain)
                 }
+                .padding(8)
+                .background(.quaternary)
+                .cornerRadius(8)
+
+                // Refresh button
                 Button {
                     Task { await viewModel.refresh() }
                 } label: {
@@ -21,69 +26,94 @@ struct PortListView: View {
                 }
                 .buttonStyle(.borderless)
                 .help("Refresh")
+                .disabled(viewModel.isScanning)
+
+                if viewModel.isScanning {
+                    ProgressView()
+                        .scaleEffect(0.6)
+                        .frame(width: 16, height: 16)
+                }
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
+            .padding(12)
 
             Divider()
 
-            // Search
-            TextField("Filter ports...", text: $viewModel.searchText)
-                .textFieldStyle(.roundedBorder)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
+            // Column headers
+            HStack(spacing: 10) {
+                Text("")
+                    .frame(width: 20)
+                Text("Port")
+                    .frame(width: 60, alignment: .trailing)
+                Text("Process")
+                    .frame(minWidth: 100, alignment: .leading)
+                Text("PID")
+                    .frame(width: 60, alignment: .trailing)
+                Text("Address")
+                    .frame(minWidth: 80, alignment: .leading)
+                Spacer()
+                Text("Actions")
+                    .frame(width: 70)
+            }
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 6)
+            .background(.quaternary.opacity(0.5))
 
             Divider()
 
             // Port list
             if viewModel.filteredPorts.isEmpty {
-                VStack(spacing: 8) {
-                    Image(systemName: "network.slash")
-                        .font(.largeTitle)
-                        .foregroundStyle(.secondary)
+                VStack(spacing: 12) {
+                    Image(systemName: viewModel.searchText.isEmpty ? "network.slash" : "magnifyingglass")
+                        .font(.system(size: 40))
+                        .foregroundStyle(.tertiary)
                     Text(viewModel.searchText.isEmpty
-                         ? "No listening ports"
-                         : "No matching ports")
+                         ? "No listening ports detected"
+                         : "No ports matching \"\(viewModel.searchText)\"")
                         .foregroundStyle(.secondary)
                 }
-                .frame(maxWidth: .infinity, minHeight: 100)
-                .padding()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                ScrollView {
-                    LazyVStack(spacing: 1) {
-                        ForEach(viewModel.filteredPorts) { entry in
-                            PortRowView(entry: entry) { force in
-                                viewModel.killProcess(pid: entry.pid, force: force)
-                            }
+                List {
+                    ForEach(viewModel.filteredPorts) { entry in
+                        PortRowView(entry: entry) { force in
+                            viewModel.killProcess(pid: entry.pid, force: force)
                         }
+                        .listRowInsets(EdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8))
                     }
                 }
-                .frame(maxHeight: 400)
+                .listStyle(.inset(alternatesRowBackgrounds: true))
             }
 
             Divider()
 
-            // Footer
+            // Status bar
             HStack {
-                Text("\(viewModel.filteredPorts.count) ports")
+                Circle()
+                    .fill(.green)
+                    .frame(width: 8, height: 8)
+                Text("\(viewModel.filteredPorts.count) port\(viewModel.filteredPorts.count == 1 ? "" : "s")")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                Spacer()
-                Button("Quit") {
-                    NSApplication.shared.terminate(nil)
+
+                if viewModel.filteredPorts.count != viewModel.portCount {
+                    Text("(\(viewModel.portCount) total)")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
                 }
-                .buttonStyle(.borderless)
-                .font(.caption)
+
+                Spacer()
+
+                Text("Auto-refresh: 5s")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
         }
-        .frame(width: 380)
         .onAppear {
             viewModel.startMonitoring()
-        }
-        .onDisappear {
-            viewModel.stopMonitoring()
         }
     }
 }

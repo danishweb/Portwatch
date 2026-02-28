@@ -16,6 +16,7 @@ bundle: release
 	mkdir -p "$(APP_BUNDLE)/Contents/Resources"
 	cp "$(BUILD_DIR)/release/$(APP_NAME)" "$(APP_BUNDLE)/Contents/MacOS/$(APP_NAME)"
 	cp Resources/Info.plist "$(APP_BUNDLE)/Contents/Info.plist"
+	codesign --force --sign - "$(APP_BUNDLE)"
 	@echo "Built $(APP_BUNDLE)"
 
 run: bundle
@@ -26,5 +27,7 @@ clean:
 	rm -rf "$(APP_BUNDLE)"
 
 install: bundle
-	cp -r "$(APP_BUNDLE)" "$(INSTALL_DIR)/$(APP_NAME).app"
+	rm -rf "$(INSTALL_DIR)/$(APP_NAME).app"
+	cp -R "$(APP_BUNDLE)" "$(INSTALL_DIR)/$(APP_NAME).app"
+	xattr -cr "$(INSTALL_DIR)/$(APP_NAME).app"
 	@echo "Installed to $(INSTALL_DIR)/$(APP_NAME).app"
