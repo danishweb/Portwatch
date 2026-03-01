@@ -1,5 +1,7 @@
 # Portwatch
 
+[![Build](https://github.com/danishweb/Portwatch/actions/workflows/build.yml/badge.svg)](https://github.com/danishweb/Portwatch/actions/workflows/build.yml)
+
 A cross-platform desktop app that shows all listening TCP ports, maps them to processes, and lets you kill them with one click.
 
 No more `lsof -i :3000 | grep LISTEN` followed by `kill -9 <PID>`. Just open Portwatch.
