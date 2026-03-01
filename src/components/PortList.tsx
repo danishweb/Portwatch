@@ -1,9 +1,13 @@
 import { useState, useCallback, useRef, useMemo } from "react";
 import { usePortScanner } from "../hooks/usePortScanner";
 import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
+import { groupByProcess } from "../types/port";
 import { PortRow } from "./PortRow";
+import { ProcessGroupRow } from "./ProcessGroupRow";
 import { ThemeToggle } from "./ThemeToggle";
 import { Toast } from "./Toast";
+
+type ViewMode = "flat" | "grouped";
 
 export function PortList() {
   const {
@@ -18,7 +22,21 @@ export function PortList() {
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number>(-1);
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    return (localStorage.getItem("portwatch-view") as ViewMode) || "flat";
+  });
   const searchRef = useRef<HTMLInputElement>(null);
+
+  const toggleViewMode = () => {
+    const next = viewMode === "flat" ? "grouped" : "flat";
+    setViewMode(next);
+    localStorage.setItem("portwatch-view", next);
+  };
+
+  const groups = useMemo(
+    () => groupByProcess(filteredPorts),
+    [filteredPorts],
+  );
 
   const copyToClipboard = useCallback((text: string) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -97,6 +115,29 @@ export function PortList() {
             style={{ color: "var(--text-primary)" }}
           />
         </div>
+        {/* View toggle */}
+        <button
+          onClick={toggleViewMode}
+          className="p-2 rounded-lg transition-colors"
+          style={{ color: "var(--text-secondary)" }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.backgroundColor = "var(--bg-hover)")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.backgroundColor = "transparent")
+          }
+          title={viewMode === "flat" ? "Group by process" : "Flat list"}
+        >
+          {viewMode === "flat" ? (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+          ) : (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+            </svg>
+          )}
+        </button>
         <button
           onClick={refresh}
           disabled={isScanning}
@@ -172,16 +213,25 @@ export function PortList() {
               </tr>
             </thead>
             <tbody>
-              {filteredPorts.map((entry, index) => (
-                <PortRow
-                  key={entry.id}
-                  entry={entry}
-                  onKill={killProcess}
-                  onCopy={copyToClipboard}
-                  isSelected={index === selectedIndex}
-                  onSelect={() => setSelectedIndex(index)}
-                />
-              ))}
+              {viewMode === "flat"
+                ? filteredPorts.map((entry, index) => (
+                    <PortRow
+                      key={entry.id}
+                      entry={entry}
+                      onKill={killProcess}
+                      onCopy={copyToClipboard}
+                      isSelected={index === selectedIndex}
+                      onSelect={() => setSelectedIndex(index)}
+                    />
+                  ))
+                : groups.map((group) => (
+                    <ProcessGroupRow
+                      key={group.key}
+                      group={group}
+                      onKill={killProcess}
+                      onCopy={copyToClipboard}
+                    />
+                  ))}
             </tbody>
           </table>
         )}
@@ -199,6 +249,11 @@ export function PortList() {
         <span>
           {filteredPorts.length} port{filteredPorts.length !== 1 ? "s" : ""}
         </span>
+        {viewMode === "grouped" && (
+          <span style={{ color: "var(--text-muted)" }}>
+            in {groups.length} process{groups.length !== 1 ? "es" : ""}
+          </span>
+        )}
         {filteredPorts.length !== ports.length && (
           <span style={{ color: "var(--text-muted)" }}>
             ({ports.length} total)
