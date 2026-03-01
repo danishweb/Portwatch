@@ -4,6 +4,7 @@ import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
 import { groupByProcess } from "../types/port";
 import { PortRow } from "./PortRow";
 import { ProcessGroupRow } from "./ProcessGroupRow";
+import { AutostartToggle } from "./AutostartToggle";
 import { ThemeToggle } from "./ThemeToggle";
 import { Toast } from "./Toast";
 
@@ -166,6 +167,7 @@ export function PortList() {
             />
           </svg>
         </button>
+        <AutostartToggle />
         <ThemeToggle />
       </div>
 
