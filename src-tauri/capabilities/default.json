@@ -3,6 +3,9 @@
   "description": "Default capabilities for Portwatch",
   "windows": ["main"],
   "permissions": [
-    "core:default"
+    "core:default",
+    "autostart:allow-enable",
+    "autostart:allow-disable",
+    "autostart:allow-is-enabled"
   ]
 }
