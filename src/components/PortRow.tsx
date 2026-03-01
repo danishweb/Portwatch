@@ -14,7 +14,16 @@ export function PortRow({ entry, onKill }: Props) {
 
   return (
     <>
-      <tr className="hover:bg-white/5 transition-colors text-sm">
+      <tr
+        className="transition-colors text-sm"
+        style={{ borderBottom: "1px solid var(--divider)" }}
+        onMouseEnter={(e) =>
+          (e.currentTarget.style.backgroundColor = "var(--bg-hover)")
+        }
+        onMouseLeave={(e) =>
+          (e.currentTarget.style.backgroundColor = "transparent")
+        }
+      >
         {/* Category */}
         <td className="px-3 py-2">
           <span
@@ -35,12 +44,18 @@ export function PortRow({ entry, onKill }: Props) {
         </td>
 
         {/* PID */}
-        <td className="px-3 py-2 text-right font-mono text-gray-400 text-xs">
+        <td
+          className="px-3 py-2 text-right font-mono text-xs"
+          style={{ color: "var(--text-secondary)" }}
+        >
           {entry.pid}
         </td>
 
         {/* Address */}
-        <td className="px-3 py-2 text-gray-400 text-xs truncate max-w-[120px]">
+        <td
+          className="px-3 py-2 text-xs truncate max-w-[120px]"
+          style={{ color: "var(--text-secondary)" }}
+        >
           {displayAddress}
         </td>
 
