@@ -25,6 +25,16 @@ No more `lsof -i :3000 | grep LISTEN` followed by `kill -9 <PID>`. Just open Por
 
 ## Install
 
+### Homebrew (macOS)
+
+```bash
+brew install danishweb/tap/portwatch
+```
+
+### Download
+
+Grab the latest release from [GitHub Releases](https://github.com/danishweb/Portwatch/releases).
+
 ### Build from source
 
 ```bash
