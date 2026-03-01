@@ -21,7 +21,7 @@ Thanks for your interest in contributing!
 - Platform-specific dependencies:
   - **macOS**: Xcode Command Line Tools (`xcode-select --install`)
   - **Linux**: `sudo apt install libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev`
-  - **Windows**: [WebView2](https://developer.microsoft.com/en-us/microsoft-edge/webview2/) (ships with Windows 11)
+  - **Windows**: [WebView2](https://developer.microsoft.com/en-us/microsoft-edge/webview2/) (ships with Windows 11). The `windows-sys` crate is used for Win32 API bindings — no additional SDK installation needed.
 
 ### Commands
 

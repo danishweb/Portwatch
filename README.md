@@ -14,8 +14,11 @@ No more `lsof -i :3000 | grep LISTEN` followed by `kill -9 <PID>`. Just open Por
 - **Search & filter** — Filter by port number, process name, or PID
 - **Color-coded categories** — Databases (purple), web servers (blue), system services (orange), dev tools (green)
 - **Confirmation dialogs** — Force kill requires confirmation to prevent accidents
-- **Cross-platform** — macOS, Linux, and Windows
+- **Cross-platform** — macOS, Linux, and Windows with native APIs
 - **Lightweight** — ~5MB binary, minimal CPU/memory usage
+- **Dark mode** — System, light, and dark theme support
+- **Keyboard shortcuts** — Cmd/Ctrl+R (refresh), Cmd/Ctrl+F (search), arrow keys (navigate)
+- **Port grouping** — Toggle between flat list and group-by-process views
 
 ## Requirements
 
@@ -31,9 +34,13 @@ No more `lsof -i :3000 | grep LISTEN` followed by `kill -9 <PID>`. Just open Por
 brew install danishweb/tap/portwatch
 ```
 
+### Windows
+
+Download the `.exe` (NSIS installer) or `.msi` from [GitHub Releases](https://github.com/danishweb/Portwatch/releases). The NSIS installer supports per-user or per-machine installation.
+
 ### Download
 
-Grab the latest release from [GitHub Releases](https://github.com/danishweb/Portwatch/releases).
+Grab the latest release for any platform from [GitHub Releases](https://github.com/danishweb/Portwatch/releases).
 
 ### Build from source
 
@@ -113,7 +120,7 @@ Portwatch/
             ├── mod.rs         # Scanner trait + OS factory
             ├── macos.rs       # lsof parser
             ├── linux.rs       # ss / /proc/net/tcp parser
-            └── windows.rs     # netstat parser
+            └── windows.rs     # Win32 API scanner (netstat fallback)
 ```
 
 ## How It Works
@@ -125,11 +132,13 @@ Runs `/usr/sbin/lsof -i -P -n -sTCP:LISTEN` to find all listening TCP ports.
 Uses `ss -tlnp` (with `/proc/net/tcp` fallback) to enumerate listeners.
 
 ### Windows
-Parses `netstat -ano` output and maps PIDs to process names via `tasklist`.
+Uses Win32 API (`GetExtendedTcpTable` + `CreateToolhelp32Snapshot`) for fast, native port scanning. Falls back to `netstat -ano` + `tasklist` if the API is unavailable.
+
+> **Note**: Running Portwatch as administrator shows all system processes. Without admin privileges, some system-level ports may be hidden — the app displays a "Limited view" indicator in this case.
 
 ### Process termination
-- **Stop**: Sends SIGTERM (Unix) or `taskkill` (Windows)
-- **Force kill**: Sends SIGKILL (Unix) or `taskkill /F` (Windows)
+- **Stop**: Sends SIGTERM (Unix) or `TerminateProcess` (Windows)
+- **Force kill**: Sends SIGKILL (Unix) or `TerminateProcess` (Windows)
 
 ## Contributing
 
