@@ -1,5 +1,6 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useMemo } from "react";
 import { usePortScanner } from "../hooks/usePortScanner";
+import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
 import { PortRow } from "./PortRow";
 import { ThemeToggle } from "./ThemeToggle";
 import { Toast } from "./Toast";
@@ -16,12 +17,44 @@ export function PortList() {
   } = usePortScanner();
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number>(-1);
+  const searchRef = useRef<HTMLInputElement>(null);
 
   const copyToClipboard = useCallback((text: string) => {
     navigator.clipboard.writeText(text).then(() => {
       setToastMessage("Copied to clipboard");
     });
   }, []);
+
+  const copySelectedEntry = useCallback(() => {
+    if (selectedIndex >= 0 && selectedIndex < filteredPorts.length) {
+      const e = filteredPorts[selectedIndex];
+      const addr = e.address === "*" ? "all interfaces" : e.address;
+      copyToClipboard(`port ${e.port} | ${e.process_name} | PID ${e.pid} | ${addr}`);
+    }
+  }, [selectedIndex, filteredPorts, copyToClipboard]);
+
+  const shortcutHandlers = useMemo(
+    () => ({
+      onRefresh: refresh,
+      onFocusSearch: () => searchRef.current?.focus(),
+      onClearSearch: () => {
+        setSearchText("");
+        setSelectedIndex(-1);
+        searchRef.current?.blur();
+      },
+      onNavigateUp: () =>
+        setSelectedIndex((prev) => Math.max(0, prev - 1)),
+      onNavigateDown: () =>
+        setSelectedIndex((prev) =>
+          Math.min(filteredPorts.length - 1, prev + 1),
+        ),
+      onCopySelected: copySelectedEntry,
+    }),
+    [refresh, setSearchText, filteredPorts.length, copySelectedEntry],
+  );
+
+  useKeyboardShortcuts(shortcutHandlers);
 
   return (
     <div
@@ -55,8 +88,9 @@ export function PortList() {
             />
           </svg>
           <input
+            ref={searchRef}
             type="text"
-            placeholder="Filter by port, process, or PID..."
+            placeholder="Filter by port, process, or PID... (Cmd+F)"
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             className="flex-1 bg-transparent outline-none text-sm"
@@ -138,12 +172,14 @@ export function PortList() {
               </tr>
             </thead>
             <tbody>
-              {filteredPorts.map((entry) => (
+              {filteredPorts.map((entry, index) => (
                 <PortRow
                   key={entry.id}
                   entry={entry}
                   onKill={killProcess}
                   onCopy={copyToClipboard}
+                  isSelected={index === selectedIndex}
+                  onSelect={() => setSelectedIndex(index)}
                 />
               ))}
             </tbody>

@@ -6,9 +6,11 @@ interface Props {
   entry: PortEntry;
   onKill: (pid: number, force: boolean) => void;
   onCopy: (text: string) => void;
+  isSelected?: boolean;
+  onSelect?: () => void;
 }
 
-export function PortRow({ entry, onKill, onCopy }: Props) {
+export function PortRow({ entry, onKill, onCopy, isSelected, onSelect }: Props) {
   const [showConfirm, setShowConfirm] = useState(false);
   const cat = categoryConfig[entry.category];
   const displayAddress = entry.address === "*" ? "all interfaces" : entry.address;
@@ -16,14 +18,20 @@ export function PortRow({ entry, onKill, onCopy }: Props) {
   return (
     <>
       <tr
-        className="transition-colors text-sm"
-        style={{ borderBottom: "1px solid var(--divider)" }}
-        onMouseEnter={(e) =>
-          (e.currentTarget.style.backgroundColor = "var(--bg-hover)")
-        }
-        onMouseLeave={(e) =>
-          (e.currentTarget.style.backgroundColor = "transparent")
-        }
+        className="transition-colors text-sm cursor-pointer"
+        style={{
+          borderBottom: "1px solid var(--divider)",
+          backgroundColor: isSelected ? "var(--bg-hover)" : "transparent",
+        }}
+        onClick={onSelect}
+        onMouseEnter={(e) => {
+          if (!isSelected)
+            e.currentTarget.style.backgroundColor = "var(--bg-hover)";
+        }}
+        onMouseLeave={(e) => {
+          if (!isSelected)
+            e.currentTarget.style.backgroundColor = "transparent";
+        }}
       >
         {/* Category */}
         <td className="px-3 py-2">
