@@ -1,6 +1,8 @@
+import { useState, useCallback } from "react";
 import { usePortScanner } from "../hooks/usePortScanner";
 import { PortRow } from "./PortRow";
 import { ThemeToggle } from "./ThemeToggle";
+import { Toast } from "./Toast";
 
 export function PortList() {
   const {
@@ -12,6 +14,14 @@ export function PortList() {
     refresh,
     killProcess,
   } = usePortScanner();
+
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const copyToClipboard = useCallback((text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setToastMessage("Copied to clipboard");
+    });
+  }, []);
 
   return (
     <div
@@ -133,6 +143,7 @@ export function PortList() {
                   key={entry.id}
                   entry={entry}
                   onKill={killProcess}
+                  onCopy={copyToClipboard}
                 />
               ))}
             </tbody>
@@ -161,6 +172,11 @@ export function PortList() {
           Auto-refresh: 5s
         </span>
       </div>
+
+      {/* Toast */}
+      {toastMessage && (
+        <Toast message={toastMessage} onDone={() => setToastMessage(null)} />
+      )}
     </div>
   );
 }

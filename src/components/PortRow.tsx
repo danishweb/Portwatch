@@ -5,9 +5,10 @@ import { categoryConfig } from "../types/port";
 interface Props {
   entry: PortEntry;
   onKill: (pid: number, force: boolean) => void;
+  onCopy: (text: string) => void;
 }
 
-export function PortRow({ entry, onKill }: Props) {
+export function PortRow({ entry, onKill, onCopy }: Props) {
   const [showConfirm, setShowConfirm] = useState(false);
   const cat = categoryConfig[entry.category];
   const displayAddress = entry.address === "*" ? "all interfaces" : entry.address;
@@ -62,6 +63,26 @@ export function PortRow({ entry, onKill }: Props) {
         {/* Actions */}
         <td className="px-3 py-2">
           <div className="flex gap-1 justify-end">
+            <button
+              onClick={() =>
+                onCopy(
+                  `port ${entry.port} | ${entry.process_name} | PID ${entry.pid} | ${displayAddress}`,
+                )
+              }
+              className="p-1 rounded transition-colors"
+              style={{ color: "var(--text-muted)" }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundColor = "var(--bg-hover)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundColor = "transparent")
+              }
+              title="Copy info (Cmd+C)"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+            </button>
             <button
               onClick={() => onKill(entry.pid, false)}
               className="p-1 rounded hover:bg-orange-500/20 text-orange-400 transition-colors"
