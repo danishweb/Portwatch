@@ -91,3 +91,84 @@ jobs:
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
+
+  update-homebrew:
+    name: Update Homebrew Tap
+    needs: release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Extract version from tag
+        id: version
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Wait for release assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Wait up to 5 minutes for the DMG to appear in the release
+          for i in $(seq 1 30); do
+            if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --json assets \
+              | jq -e '.assets[] | select(.name | endswith("_aarch64.dmg"))' > /dev/null 2>&1; then
+              echo "DMG asset found"
+              exit 0
+            fi
+            echo "Waiting for DMG asset... (attempt $i/30)"
+            sleep 10
+          done
+          echo "Timed out waiting for DMG asset"
+          exit 1
+
+      - name: Download DMG and compute SHA256
+        id: sha
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          DMG_NAME="Portwatch_${VERSION}_aarch64.dmg"
+          gh release download "$GITHUB_REF_NAME" \
+            --repo "$GITHUB_REPOSITORY" \
+            --pattern "$DMG_NAME"
+          SHA=$(sha256sum "$DMG_NAME" | awk '{print $1}')
+          echo "sha256=$SHA" >> "$GITHUB_OUTPUT"
+          echo "Computed SHA256: $SHA"
+
+      - name: Update Homebrew cask
+        env:
+          HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          SHA="${{ steps.sha.outputs.sha256 }}"
+
+          git clone "https://x-access-token:${HOMEBREW_TAP_TOKEN}@github.com/danishweb/homebrew-tap.git"
+          cd homebrew-tap
+
+          cat > Casks/portwatch.rb << EOF
+          cask "portwatch" do
+            version "${VERSION}"
+            sha256 "${SHA}"
+
+            url "https://github.com/danishweb/Portwatch/releases/download/v#{version}/Portwatch_#{version}_aarch64.dmg"
+            name "Portwatch"
+            desc "Cross-platform port monitor — see all listening TCP ports and kill processes"
+            homepage "https://github.com/danishweb/Portwatch"
+
+            depends_on macos: ">= :catalina"
+            depends_on arch: :arm64
+
+            app "Portwatch.app"
+
+            zap trash: [
+              "~/Library/Application Support/dev.portwatch",
+              "~/Library/Caches/dev.portwatch",
+              "~/Library/Preferences/dev.portwatch.plist",
+              "~/Library/Saved Application State/dev.portwatch.savedState",
+            ]
+          end
+          EOF
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Casks/portwatch.rb
+          git commit -m "Update portwatch to ${VERSION}"
+          git push
