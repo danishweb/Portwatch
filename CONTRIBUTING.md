@@ -8,7 +8,7 @@ Thanks for your interest in contributing!
 2. Clone your fork
 3. Create a branch: `git checkout -b my-feature`
 4. Make your changes
-5. Build and test: `npm run tauri dev`
+5. Build and test: `pnpm tauri dev`
 6. Commit and push
 7. Open a Pull Request
 
@@ -16,7 +16,7 @@ Thanks for your interest in contributing!
 
 ### Prerequisites
 
-- [Node.js 18+](https://nodejs.org/) and npm
+- [Node.js 18+](https://nodejs.org/) and [pnpm](https://pnpm.io/)
 - [Rust](https://rustup.rs/) (latest stable)
 - Platform-specific dependencies:
   - **macOS**: Xcode Command Line Tools (`xcode-select --install`)
@@ -27,16 +27,16 @@ Thanks for your interest in contributing!
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 
 # Start dev server (hot-reload frontend + Rust rebuild)
-npm run tauri dev
+pnpm tauri dev
 
 # Production build
-npm run tauri build
+pnpm tauri build
 
 # Frontend only (no Tauri)
-npm run dev
+pnpm dev
 ```
 
 ## Guidelines

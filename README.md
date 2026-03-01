@@ -18,7 +18,7 @@ No more `lsof -i :3000 | grep LISTEN` followed by `kill -9 <PID>`. Just open Por
 ## Requirements
 
 - macOS 10.15+, Linux (any modern distro), or Windows 10+
-- [Node.js 18+](https://nodejs.org/) and npm
+- [Node.js 18+](https://nodejs.org/) and [pnpm](https://pnpm.io/)
 - [Rust](https://rustup.rs/) (for building from source)
 
 ## Install
@@ -28,8 +28,8 @@ No more `lsof -i :3000 | grep LISTEN` followed by `kill -9 <PID>`. Just open Por
 ```bash
 git clone https://github.com/danishweb/Portwatch.git
 cd Portwatch
-npm install
-npm run tauri build
+pnpm install
+pnpm tauri build
 ```
 
 The built app will be at:
@@ -40,7 +40,7 @@ The built app will be at:
 ### Development
 
 ```bash
-npm run tauri dev
+pnpm tauri dev
 ```
 
 ## Usage
