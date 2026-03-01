@@ -15,6 +15,36 @@ export interface PortEntry {
   category: PortCategory;
 }
 
+export interface ProcessGroup {
+  key: string;
+  processName: string;
+  pid: number;
+  entries: PortEntry[];
+  category: PortCategory;
+}
+
+export function groupByProcess(ports: PortEntry[]): ProcessGroup[] {
+  const map = new Map<string, ProcessGroup>();
+  for (const entry of ports) {
+    const key = `${entry.process_name}-${entry.pid}`;
+    const existing = map.get(key);
+    if (existing) {
+      existing.entries.push(entry);
+    } else {
+      map.set(key, {
+        key,
+        processName: entry.process_name,
+        pid: entry.pid,
+        entries: [entry],
+        category: entry.category,
+      });
+    }
+  }
+  return Array.from(map.values()).sort(
+    (a, b) => a.entries[0].port - b.entries[0].port,
+  );
+}
+
 export const categoryConfig: Record<
   PortCategory,
   { color: string; icon: string; label: string }
