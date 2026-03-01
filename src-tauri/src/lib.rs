@@ -1,13 +1,26 @@
 mod models;
 mod scanner;
 
-use models::PortEntry;
+use models::ScanResult;
 use scanner::create_scanner;
 
 #[tauri::command]
-fn scan_ports() -> Result<Vec<PortEntry>, String> {
+fn scan_ports() -> Result<ScanResult, String> {
     let scanner = create_scanner();
-    scanner.scan()
+    let entries = scanner.scan()?;
+
+    let is_admin = {
+        #[cfg(windows)]
+        {
+            unsafe { windows_sys::Win32::UI::Shell::IsUserAnAdmin() != 0 }
+        }
+        #[cfg(not(windows))]
+        {
+            true // Unix: lsof/ss handle permissions internally
+        }
+    };
+
+    Ok(ScanResult { entries, is_admin })
 }
 
 #[tauri::command]

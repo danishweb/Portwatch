@@ -16,6 +16,7 @@ export function PortList() {
     searchText,
     setSearchText,
     isScanning,
+    isAdmin,
     refresh,
     killProcess,
   } = usePortScanner();
@@ -257,6 +258,14 @@ export function PortList() {
         {filteredPorts.length !== ports.length && (
           <span style={{ color: "var(--text-muted)" }}>
             ({ports.length} total)
+          </span>
+        )}
+        {!isAdmin && (
+          <span
+            style={{ color: "var(--text-muted)" }}
+            title="Run as administrator to see all system processes"
+          >
+            Limited view
           </span>
         )}
         <span className="ml-auto" style={{ color: "var(--text-muted)" }}>

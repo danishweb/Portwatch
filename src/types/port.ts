@@ -15,6 +15,11 @@ export interface PortEntry {
   category: PortCategory;
 }
 
+export interface ScanResult {
+  entries: PortEntry[];
+  is_admin: boolean;
+}
+
 export interface ProcessGroup {
   key: string;
   processName: string;

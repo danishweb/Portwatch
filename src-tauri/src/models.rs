@@ -1,6 +1,12 @@
 use serde::Serialize;
 
 #[derive(Debug, Clone, Serialize)]
+pub struct ScanResult {
+    pub entries: Vec<PortEntry>,
+    pub is_admin: bool,
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct PortEntry {
     pub id: String,
     pub port: u16,
