@@ -19,8 +19,7 @@ export const ProcessGroupRow = memo(
       <>
         {/* Group header */}
         <tr
-          className="port-row cursor-pointer transition-colors text-sm"
-          style={{ borderBottom: "1px solid var(--divider)" }}
+          className="port-row row-divider cursor-pointer text-sm"
           onClick={() => setExpanded(!expanded)}
         >
           <td className="px-3 py-2">
@@ -32,8 +31,7 @@ export const ProcessGroupRow = memo(
           <td className="px-3 py-2" colSpan={2}>
             <div className="flex items-center gap-2">
               <svg
-                className={`w-3 h-3 transition-transform ${expanded ? "rotate-90" : ""}`}
-                style={{ color: "var(--text-muted)" }}
+                className={`w-3 h-3 transition-transform text-muted ${expanded ? "rotate-90" : ""}`}
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -44,13 +42,7 @@ export const ProcessGroupRow = memo(
                 />
               </svg>
               <span className="font-semibold">{group.processName}</span>
-              <span
-                className="text-xs px-1.5 py-0.5 rounded-full"
-                style={{
-                  backgroundColor: "var(--bg-input)",
-                  color: "var(--text-secondary)",
-                }}
-              >
+              <span className="badge text-xs px-1.5 py-0.5 rounded-full">
                 {group.entries.length} port{group.entries.length !== 1 ? "s" : ""}
               </span>
             </div>
@@ -151,11 +143,7 @@ export const ProcessGroupRow = memo(
           group.entries.map((entry) => (
             <tr
               key={entry.id}
-              className="transition-colors text-sm"
-              style={{
-                borderBottom: "1px solid var(--divider)",
-                backgroundColor: "var(--bg-hover)",
-              }}
+              className="row-nested text-sm"
             >
               <td className="px-3 py-1.5"></td>
               <td className="px-3 py-1.5 text-right font-mono font-semibold text-xs">

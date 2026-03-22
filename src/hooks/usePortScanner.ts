@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import type { PortEntry, ScanResult } from "../types/port";
 
-const SCAN_INTERVAL_MS = 3000;
+const SCAN_INTERVAL_ACTIVE_MS = 3000;
+const SCAN_INTERVAL_IDLE_MS = 30000;
 
 function portsEqual(a: PortEntry[], b: PortEntry[]): boolean {
   if (a.length !== b.length) return false;
@@ -19,7 +20,19 @@ export function usePortScanner() {
   const [searchText, setSearchText] = useState("");
   const [isScanning, setIsScanning] = useState(false);
   const [isAdmin, setIsAdmin] = useState(true);
+  const [isFocused, setIsFocused] = useState(true);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    const onFocus = () => setIsFocused(true);
+    const onBlur = () => setIsFocused(false);
+    window.addEventListener("focus", onFocus);
+    window.addEventListener("blur", onBlur);
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      window.removeEventListener("blur", onBlur);
+    };
+  }, []);
 
   const refresh = useCallback(async () => {
     setIsScanning(true);
@@ -52,11 +65,12 @@ export function usePortScanner() {
 
   useEffect(() => {
     refresh();
-    intervalRef.current = setInterval(refresh, SCAN_INTERVAL_MS);
+    const interval = isFocused ? SCAN_INTERVAL_ACTIVE_MS : SCAN_INTERVAL_IDLE_MS;
+    intervalRef.current = setInterval(refresh, interval);
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [refresh]);
+  }, [refresh, isFocused]);
 
   const filteredPorts = useMemo(() => {
     if (!searchText) return ports;
@@ -76,6 +90,7 @@ export function usePortScanner() {
     setSearchText,
     isScanning,
     isAdmin,
+    isFocused,
     refresh,
     killProcess,
   };

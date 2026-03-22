@@ -19,14 +19,7 @@ export function ThemeToggle() {
   return (
     <button
       onClick={cycleTheme}
-      className="p-2 rounded-lg transition-colors"
-      style={{ color: "var(--text-secondary)" }}
-      onMouseEnter={(e) =>
-        (e.currentTarget.style.backgroundColor = "var(--bg-hover)")
-      }
-      onMouseLeave={(e) =>
-        (e.currentTarget.style.backgroundColor = "transparent")
-      }
+      className="btn-toolbar"
       title={`Theme: ${themes.find((t) => t.value === theme)?.label}`}
     >
       {resolved === "dark" ? (

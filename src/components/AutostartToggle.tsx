@@ -8,14 +8,8 @@ export function AutostartToggle() {
   return (
     <button
       onClick={toggle}
-      className="p-2 rounded-lg transition-colors"
-      style={{ color: enabled ? "#22c55e" : "var(--text-secondary)" }}
-      onMouseEnter={(e) =>
-        (e.currentTarget.style.backgroundColor = "var(--bg-hover)")
-      }
-      onMouseLeave={(e) =>
-        (e.currentTarget.style.backgroundColor = "transparent")
-      }
+      className="btn-toolbar"
+      style={enabled ? { color: "#22c55e" } : undefined}
       title={enabled ? "Disable launch at login" : "Enable launch at login"}
     >
       {enabled ? (
