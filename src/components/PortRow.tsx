@@ -19,8 +19,7 @@ export const PortRow = memo(
     return (
       <>
         <tr
-          className={`port-row transition-colors text-sm cursor-pointer ${isSelected ? "port-row-selected" : ""}`}
-          style={{ borderBottom: "1px solid var(--divider)" }}
+          className={`port-row row-divider text-sm cursor-pointer ${isSelected ? "port-row-selected" : ""}`}
           onClick={onSelect}
         >
           {/* Category */}

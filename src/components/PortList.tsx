@@ -18,6 +18,7 @@ export function PortList() {
     setSearchText,
     isScanning,
     isAdmin,
+    isFocused,
     refresh,
     killProcess,
   } = usePortScanner();
@@ -82,25 +83,15 @@ export function PortList() {
   );
 
   return (
-    <div
-      className="flex flex-col h-screen"
-      style={{ backgroundColor: "var(--bg-primary)", color: "var(--text-primary)" }}
-    >
+    <div className="app-shell">
+      {/* macOS overlay titlebar drag region */}
+      <div className="titlebar-drag" />
+
       {/* Toolbar */}
-      <div
-        className="flex items-center gap-3 px-4 py-3"
-        style={{ borderBottom: "1px solid var(--border-color)" }}
-      >
-        <div
-          className="flex items-center flex-1 gap-2 px-3 py-1.5 rounded-lg"
-          style={{
-            backgroundColor: "var(--bg-input)",
-            border: "1px solid var(--border-color)",
-          }}
-        >
+      <div className="toolbar flex items-center gap-3 px-4 py-3">
+        <div className="search-box flex items-center flex-1 gap-2 px-3 py-1.5 rounded-lg">
           <svg
-            className="w-4 h-4 shrink-0"
-            style={{ color: "var(--text-muted)" }}
+            className="w-4 h-4 shrink-0 text-muted"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -118,8 +109,7 @@ export function PortList() {
             placeholder="Filter by port, process, or PID... (Cmd+F)"
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
-            className="flex-1 bg-transparent outline-none text-sm"
-            style={{ color: "var(--text-primary)" }}
+            className="search-input flex-1 bg-transparent outline-none text-sm"
           />
         </div>
         {/* View toggle */}
@@ -165,10 +155,7 @@ export function PortList() {
       {/* Table */}
       <div className="flex-1 overflow-auto">
         {filteredPorts.length === 0 ? (
-          <div
-            className="flex flex-col items-center justify-center h-full gap-3"
-            style={{ color: "var(--text-muted)" }}
-          >
+          <div className="empty-state flex flex-col items-center justify-center h-full gap-3">
             <svg
               className="w-12 h-12"
               fill="none"
@@ -190,13 +177,7 @@ export function PortList() {
           </div>
         ) : (
           <table className="w-full">
-            <thead
-              className="sticky top-0 text-xs uppercase tracking-wider"
-              style={{
-                backgroundColor: "var(--bg-secondary)",
-                color: "var(--text-muted)",
-              }}
-            >
+            <thead className="table-head sticky top-0 text-xs uppercase tracking-wider">
               <tr>
                 <th className="px-3 py-2 text-left w-10"></th>
                 <th className="px-3 py-2 text-right w-20">Port</th>
@@ -232,37 +213,31 @@ export function PortList() {
       </div>
 
       {/* Status bar */}
-      <div
-        className="flex items-center gap-2 px-4 py-2 text-xs"
-        style={{
-          borderTop: "1px solid var(--border-color)",
-          color: "var(--text-secondary)",
-        }}
-      >
+      <div className="status-bar flex items-center gap-2 px-4 py-2 text-xs">
         <span className="inline-block w-2 h-2 rounded-full bg-green-500" />
         <span>
           {filteredPorts.length} port{filteredPorts.length !== 1 ? "s" : ""}
         </span>
         {viewMode === "grouped" && (
-          <span style={{ color: "var(--text-muted)" }}>
+          <span className="text-muted">
             in {groups.length} process{groups.length !== 1 ? "es" : ""}
           </span>
         )}
         {filteredPorts.length !== ports.length && (
-          <span style={{ color: "var(--text-muted)" }}>
+          <span className="text-muted">
             ({ports.length} total)
           </span>
         )}
         {!isAdmin && (
           <span
-            style={{ color: "var(--text-muted)" }}
+            className="text-muted"
             title="Run as administrator to see all system processes"
           >
             Limited view
           </span>
         )}
-        <span className="ml-auto" style={{ color: "var(--text-muted)" }}>
-          Auto-refresh: 3s
+        <span className="ml-auto text-muted">
+          {isFocused ? "Auto-refresh: 3s" : "Idle: 30s"}
         </span>
       </div>
 

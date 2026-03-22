@@ -40,7 +40,60 @@ body {
   user-select: none;
 }
 
-/* Shared interactive styles — replaces inline onMouseEnter/onMouseLeave */
+/* ── Layout shells ── */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* macOS overlay titlebar: drag region */
+.titlebar-drag {
+  height: 28px;
+  -webkit-app-region: drag;
+  flex-shrink: 0;
+}
+
+.titlebar-drag * {
+  -webkit-app-region: no-drag;
+}
+
+/* ── Toolbar ── */
+.toolbar {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.search-box {
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-color);
+}
+
+.search-input {
+  color: var(--text-primary);
+}
+
+/* ── Table ── */
+.table-head {
+  background-color: var(--bg-secondary);
+  color: var(--text-muted);
+}
+
+.row-divider {
+  border-bottom: 1px solid var(--divider);
+}
+
+.row-nested {
+  border-bottom: 1px solid var(--divider);
+  background-color: var(--bg-hover);
+}
+
+/* ── Port rows ── */
+.port-row {
+  transition: background-color 150ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
 .port-row:hover {
   background-color: var(--bg-hover);
 }
@@ -50,10 +103,11 @@ body {
   background-color: var(--bg-hover);
 }
 
+/* ── Buttons ── */
 .btn-icon {
   padding: 0.25rem;
   border-radius: 0.25rem;
-  transition: background-color 150ms ease-out;
+  transition: background-color 150ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .btn-icon:hover {
@@ -63,7 +117,7 @@ body {
 .btn-icon-sm {
   padding: 0.25rem;
   border-radius: 0.25rem;
-  transition: background-color 150ms ease-out;
+  transition: background-color 150ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .btn-icon-sm:hover {
@@ -74,13 +128,14 @@ body {
   padding: 0.5rem;
   border-radius: 0.5rem;
   color: var(--text-secondary);
-  transition: background-color 150ms ease-out;
+  transition: background-color 150ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .btn-toolbar:hover {
   background-color: var(--bg-hover);
 }
 
+/* ── Text color utilities ── */
 .text-secondary {
   color: var(--text-secondary);
 }
@@ -89,7 +144,27 @@ body {
   color: var(--text-muted);
 }
 
-/* Snappier toast animation */
-.toast-enter {
-  animation: toast-slide-in 150ms cubic-bezier(0.34, 1.56, 0.64, 1);
+/* ── Badge ── */
+.badge {
+  background-color: var(--bg-input);
+  color: var(--text-secondary);
+}
+
+/* ── Status bar ── */
+.status-bar {
+  border-top: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+/* ── Toast ── */
+.toast {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  transition: all 150ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ── Empty state ── */
+.empty-state {
+  color: var(--text-muted);
 }
