@@ -76,6 +76,11 @@ export function PortList() {
 
   useKeyboardShortcuts(shortcutHandlers);
 
+  const handleSelect = useCallback(
+    (index: number) => setSelectedIndex(index),
+    [],
+  );
+
   return (
     <div
       className="flex flex-col h-screen"
@@ -120,14 +125,7 @@ export function PortList() {
         {/* View toggle */}
         <button
           onClick={toggleViewMode}
-          className="p-2 rounded-lg transition-colors"
-          style={{ color: "var(--text-secondary)" }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor = "var(--bg-hover)")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.backgroundColor = "transparent")
-          }
+          className="btn-toolbar"
           title={viewMode === "flat" ? "Group by process" : "Flat list"}
         >
           {viewMode === "flat" ? (
@@ -143,14 +141,7 @@ export function PortList() {
         <button
           onClick={refresh}
           disabled={isScanning}
-          className="p-2 rounded-lg transition-colors disabled:opacity-50"
-          style={{ color: "var(--text-secondary)" }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor = "var(--bg-hover)")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.backgroundColor = "transparent")
-          }
+          className="btn-toolbar disabled:opacity-50"
           title="Refresh (Cmd+R)"
         >
           <svg
@@ -224,7 +215,7 @@ export function PortList() {
                       onKill={killProcess}
                       onCopy={copyToClipboard}
                       isSelected={index === selectedIndex}
-                      onSelect={() => setSelectedIndex(index)}
+                      onSelect={() => handleSelect(index)}
                     />
                   ))
                 : groups.map((group) => (
@@ -271,7 +262,7 @@ export function PortList() {
           </span>
         )}
         <span className="ml-auto" style={{ color: "var(--text-muted)" }}>
-          Auto-refresh: 5s
+          Auto-refresh: 3s
         </span>
       </div>
 

@@ -39,3 +39,57 @@ body {
   overflow: hidden;
   user-select: none;
 }
+
+/* Shared interactive styles — replaces inline onMouseEnter/onMouseLeave */
+.port-row:hover {
+  background-color: var(--bg-hover);
+}
+
+.port-row-selected,
+.port-row-selected:hover {
+  background-color: var(--bg-hover);
+}
+
+.btn-icon {
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  transition: background-color 150ms ease-out;
+}
+
+.btn-icon:hover {
+  background-color: var(--bg-hover);
+}
+
+.btn-icon-sm {
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  transition: background-color 150ms ease-out;
+}
+
+.btn-icon-sm:hover {
+  background-color: var(--bg-secondary);
+}
+
+.btn-toolbar {
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  color: var(--text-secondary);
+  transition: background-color 150ms ease-out;
+}
+
+.btn-toolbar:hover {
+  background-color: var(--bg-hover);
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+/* Snappier toast animation */
+.toast-enter {
+  animation: toast-slide-in 150ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
