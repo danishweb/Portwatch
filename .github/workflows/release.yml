@@ -88,7 +88,7 @@ jobs:
             | macOS (Intel) | `.dmg` |
             | Linux | `.deb`, `.AppImage` |
             | Windows | `.msi`, `.exe` |
-          releaseDraft: true
+          releaseDraft: false
           prerelease: false
           args: ${{ matrix.args }}
 
